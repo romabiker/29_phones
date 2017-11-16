@@ -1,15 +1,7 @@
-"""Adding column normalized_phones
-
-Revision ID: b6d4be229078
-Revises:
-Create Date: 2017-11-14 16:54:48.316512
-
-"""
 from alembic import op
 import sqlalchemy as sa
 
 
-# revision identifiers, used by Alembic.
 revision = 'b6d4be229078'
 down_revision = None
 branch_labels = None

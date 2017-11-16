@@ -16,8 +16,8 @@ from db import (
 )
 
 
-DestOrder = dest_base.classes.orders
-SourceOrder = source_base.classes.orders
+dest_order_cls = dest_base.classes.orders
+source_order_cls = source_base.classes.orders
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
@@ -34,7 +34,7 @@ def normalize_to_national_number(phonenumber, country='RU'):
 
 
 def normalize_dest_db_and_get_latest_time(one=1):
-    dest_orders = dest_session.query(DestOrder).order_by(DestOrder.created.desc())
+    dest_orders = dest_session.query(dest_order_cls).order_by(dest_order_cls.created.desc())
     for order in dest_orders.all():
         if not order.normalized_phones:
             order.normalized_phones = normalize_to_national_number(
@@ -48,9 +48,9 @@ def normalize_dest_db_and_get_latest_time(one=1):
 def request_source_db(latest_date, tries=5, step=1):
     while True:
         try:
-            return source_session.query(SourceOrder).order_by(
-                SourceOrder.created.desc()).filter(
-                SourceOrder.created > latest_date).all()
+            return source_session.query(source_order_cls).order_by(
+                source_order_cls.created.desc()).filter(
+                source_order_cls.created > latest_date).all()
         except exc.DBAPIError as error:
             tries -= step
             if not counter:
@@ -72,7 +72,7 @@ def watch_source_db(latest_date, delay=5, first=0):
         latest_date = source_orders[first].created
         logging.info('the latest order at {date}'.format(date=latest_date))
         for source_order in source_orders:
-            dest_order = DestOrder(
+            dest_order = dest_order_cls(
                 id=source_order.id,
                 contact_phone=source_order.contact_phone,
                 contact_name=source_order.contact_name,
