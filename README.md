@@ -1,6 +1,32 @@
 # Microservice for Search Index of Phone Numbers
 
-{TODO. There will be project description}
+This project is aimed to test phonenumbers normalization process and alembic database migration to add new colomn for normalized phonenumbers before using it in production.
+
+Quickstart
+----------
+
+
+Run the following commands to install project locally:
+
+```
+    # to install dependancies:
+    pipenv shell
+    pipenv install
+
+
+    # enter db pathes
+    export DEST_SQL_ENGINE=/path/to/db
+    export SOURCE_SQL_ENGINE=/path/to/db
+
+
+    # run alembic migration for test destination db
+    alembic upgrade head
+
+
+    # run normalization process
+    python phone_normalizer.py
+
+```
 
 # Project Goals
 
