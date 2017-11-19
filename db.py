@@ -14,5 +14,5 @@ def prepare_base_and_session(sql_engine):
     return base, session
 
 
-dest_base, dest_session = prepare_session_and_base('DEST_SQL_ENGINE')
-source_base, source_session = prepare_session_and_base('SOURCE_SQL_ENGINE')
+dest_base, dest_session = prepare_base_and_session('DEST_SQL_ENGINE')
+source_base, source_session = prepare_base_and_session('SOURCE_SQL_ENGINE')
