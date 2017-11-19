@@ -53,7 +53,7 @@ def request_source_db(latest_date, tries=5, step=1):
                 source_order_cls.created > latest_date).all()
         except exc.DBAPIError as error:
             tries -= step
-            if not counter:
+            if not tries:
                 logging.error('There is {error_msg}'.format(error_msg=error.msg))
                 return None
 

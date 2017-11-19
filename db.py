@@ -6,7 +6,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import  Session
 
 
-def prepare_session_and_base(sql_engine):
+def prepare_base_and_session(sql_engine):
     engine = create_engine(getenv(sql_engine))
     base = automap_base()
     base.prepare(engine, reflect=True)
