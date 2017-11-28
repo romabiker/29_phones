@@ -1,21 +1,17 @@
 from __future__ import with_statement
-import os
 import sys
+import os
 
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
-
 sys.path.append(os.getcwd())
 config = context.config
-
 fileConfig(config.config_file_name)
-
-
-from db import dest_base
-target_metadata = dest_base.metadata
+from db import Base
+target_metadata = Base.metadata
 
 
 def run_migrations_offline():
@@ -41,7 +37,6 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()
