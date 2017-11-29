@@ -42,14 +42,11 @@ def watch_prod_db(delay=2*60):
         try:
             orders_to_normalize_phone = query_not_normalized_orders()
         except exc.DBAPIError as error:
-            logging.error('{err_mess} happened while db connection'.format(
-                err_mess=error.message))
+            logging.error('{error_msg} happened while db connection'.format(
+                error_msg=error.message))
             break
         orders_amount_to_norm = len(orders_to_normalize_phone)
-        if not orders_amount_to_norm:
-            logging.info('sleeping {delay}'.format(delay=delay))
-            time.sleep(delay)
-        else:
+        if orders_amount_to_norm:
             logging.info('{orders_amount_to_norm} orders to normalize'.format(
                 orders_amount_to_norm=orders_amount_to_norm))
             for order in orders_to_normalize_phone:
@@ -57,8 +54,8 @@ def watch_prod_db(delay=2*60):
                                               order.contact_phone)
                 session.add(order)
             session.commit()
-            logging.info('After commit sleeping {delay}'.format(delay=delay))
-            time.sleep(delay)
+        logging.info('sleeping {delay}'.format(delay=delay))
+        time.sleep(delay)
 
 
 if __name__ == '__main__':

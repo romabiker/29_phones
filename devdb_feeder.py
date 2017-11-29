@@ -3,7 +3,7 @@ import time
 import logging
 
 
-from sqlalchemy import exc
+from sqlalchemy import exc, func
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -23,19 +23,15 @@ source_order_cls, source_session = prepare_orders_cls_and_session('DEV_SOURCE_SQ
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
-def get_latest_order_time(one=1):
-    dest_orders = dest_session.query(
-        dest_order_cls).order_by(dest_order_cls.created.desc())
-    latest_order = dest_orders.limit(one).first()
-    return latest_order.created
+def get_latest_order_datetime():
+    return dest_session.query(func.max(dest_order_cls.created)).first()
 
 
-def request_source_db(latest_date, tries=3, step=1):
+def request_source_db(latest_datetime, tries=3, step=1):
     while True:
         try:
-            return source_session.query(source_order_cls).order_by(
-                source_order_cls.created.desc()).filter(
-                source_order_cls.created > latest_date).all()
+            return source_session.query(source_order_cls).filter(
+                source_order_cls.created > latest_datetime).all()
         except exc.DBAPIError as error:
             tries -= step
             if not tries:
@@ -43,19 +39,16 @@ def request_source_db(latest_date, tries=3, step=1):
                 return None
 
 
-def watch_source_db_and_feed_dest_db(latest_date, delay=2*60, first=0):
+def watch_source_db_and_feed_dest_db(latest_datetime, delay=2*60, first=0):
     while True:
-        source_orders = request_source_db(latest_date)
+        source_orders = request_source_db(latest_datetime)
         if source_orders is None:
             break
         orders_quantity = len(source_orders)
         logging.info('{quantity} orders have come'.format(quantity=orders_quantity))
-        if not orders_quantity:
-            logging.info('sleeping {delay}'.format(delay=delay))
-            time.sleep(delay)
-        else:
-            latest_date = source_orders[first].created
-            logging.info('the latest order at {date}'.format(date=latest_date))
+        if orders_quantity:
+            logging.info('the latest order at {date}'.format(
+                date=source_orders[first].created))
             for source_order in source_orders:
                 dest_order = dest_order_cls(
                     id=source_order.id,
@@ -70,10 +63,10 @@ def watch_source_db_and_feed_dest_db(latest_date, delay=2*60, first=0):
                 )
                 dest_session.add(dest_order)
             dest_session.commit()
-            logging.info('After commit sleeping {delay}'.format(delay=delay))
-            time.sleep(delay)
+        logging.info('sleeping {delay} secs'.format(delay=delay))
+        time.sleep(delay)
 
 
 if __name__ == '__main__':
-    latest_order_datetime = get_latest_order_time()
+    latest_order_datetime = get_latest_order_datetime()
     watch_source_db_and_feed_dest_db(latest_order_datetime)
