@@ -33,13 +33,18 @@ def query_not_normalized_orders(delay=60, tries=5, step=1):
         except exc.DBAPIError as error:
             tries -= step
             if not tries:
-                raise exc.DBAPIError
+                raise error
             time.sleep(delay)
 
 
 def watch_prod_db(delay=2*60):
     while True:
-        orders_to_normalize_phone = query_not_normalized_orders()
+        try:
+            orders_to_normalize_phone = query_not_normalized_orders()
+        except exc.DBAPIError as error:
+            logging.error('{err_mess} happened while db connection'.format(
+                err_mess=error.message))
+            break
         orders_amount_to_norm = len(orders_to_normalize_phone)
         if not orders_amount_to_norm:
             logging.info('sleeping {delay}'.format(delay=delay))
