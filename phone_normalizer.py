@@ -25,7 +25,7 @@ def normalize_to_national_number(phonenumber, country='RU'):
     return phonenumber_obj.national_number
 
 
-def query_not_normalized_orders(delay=60, tries=5, step=1):
+def query_not_normalized_orders(tries=5, step=1):
     while True:
         try:
             return session.query(Order).filter(
@@ -34,7 +34,6 @@ def query_not_normalized_orders(delay=60, tries=5, step=1):
             tries -= step
             if not tries:
                 raise error
-            time.sleep(delay)
 
 
 def watch_prod_db(delay=2*60):

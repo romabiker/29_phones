@@ -2,4 +2,3 @@ __pycache__/
 pip*
 env
 test.py
-Pipfile.lock

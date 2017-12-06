@@ -47,8 +47,9 @@ def watch_source_db_and_feed_dest_db(latest_datetime, delay=2*60, first=0):
         orders_quantity = len(source_orders)
         logging.info('{quantity} orders have come'.format(quantity=orders_quantity))
         if orders_quantity:
-            logging.info('the latest order at {date}'.format(
-                date=source_orders[first].created))
+            latest_datetime = source_orders[first].created
+            logging.info('the latest order at {datetime}'.format(
+                datetime=latest_datetime))
             for source_order in source_orders:
                 dest_order = dest_order_cls(
                     id=source_order.id,
